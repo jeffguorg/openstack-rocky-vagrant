@@ -20,6 +20,16 @@ Vagrant.configure("2") do |config|
   config.vm.define "controller", primary: true do | controller |
     controller.vm.hostname = "controller"
     controller.vm.network :private_network, :ip => "10.0.0.11"
+    controller.vm.provision "shell": inline: <<-SHELL
+      yum install mariadb mariadb-server python2-PyMySQL rabbitmq-server -y
+      cp {/vagrant/config,}/etc/my.cnf.d/openstack.cnf -v
+
+      systemctl enable rabbitmq-server.service
+      systemctl enable mariadb.service
+
+      systemctl start rabbitmq-server.service
+      systemctl start mariadb.service
+    SHELL
   end
   config.vm.define "compute1", primary: true do | compute1 |
     compute1.vm.hostname = "compute1"
